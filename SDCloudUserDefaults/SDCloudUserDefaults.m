@@ -30,21 +30,23 @@ static NSUserDefaults *userDefaults;
     return [[NSUserDefaults standardUserDefaults] boolForKey:ICLOUD_DATA_ENABLED_KEY];
 }
 
-+ (void) initialize {
-    [super initialize];
-    
-    id keyValue = [SDCloudUserDefaults objectForKey:ICLOUD_DATA_ENABLED_KEY];
-    
-    if (keyValue != nil) {
-        BOOL iCloudEnabled = [SDCloudUserDefaults boolForKey:ICLOUD_DATA_ENABLED_KEY];
-        
-        if (iCloudEnabled == YES) {
-            [SDCloudUserDefaults registerForNotifications];
-        } else {
-            [SDCloudUserDefaults removeNotifications];
-        }
-    }
-}
+// We don't want this as we would like to have more control over when we want to
+// register explicitly
+//+ (void) initialize {
+//    [super initialize];
+//
+//    id keyValue = [SDCloudUserDefaults objectForKey:ICLOUD_DATA_ENABLED_KEY];
+//
+//    if (keyValue != nil) {
+//        BOOL iCloudEnabled = [SDCloudUserDefaults boolForKey:ICLOUD_DATA_ENABLED_KEY];
+//
+//        if (iCloudEnabled == YES) {
+//            [SDCloudUserDefaults registerForNotifications];
+//        } else {
+//            [SDCloudUserDefaults removeNotifications];
+//        }
+//    }
+//}
 
 +(NSUserDefaults *) _standardUserDefaults {
     if (userDefaults == nil) {
@@ -92,16 +94,23 @@ static NSUserDefaults *userDefaults;
     return [[SDCloudUserDefaults objectForKey:aKey] boolValue];
 }
 
++(NSDictionary*)dictionaryForKey:(NSString*)aKey {
+  return (NSDictionary*)[SDCloudUserDefaults objectForKey:aKey];
+}
+
 +(id)objectForKey:(NSString*)aKey {
     if ([SDCloudUserDefaults isiCloudEnabled] == YES) {
         NSUbiquitousKeyValueStore* cloud = [NSUbiquitousKeyValueStore defaultStore];
         id retv = [cloud objectForKey:aKey];
-       
+
+      // Don't need to do this, if it's not found and we save it to the cloud
+      // the other device may do the same and we'll have the two devices repeatedly
+      // updaing each other
         if (!retv) {
             retv = [[self _standardUserDefaults] objectForKey:aKey];
-            [cloud setObject:retv forKey:aKey];
+//            [cloud setObject:retv forKey:aKey];
         }
-        
+      
         return retv;
     } else {
         return [[self _standardUserDefaults] objectForKey:aKey];

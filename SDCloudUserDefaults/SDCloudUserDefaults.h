@@ -63,6 +63,8 @@
  */
 +(NSInteger)integerForKey:(NSString*)aKey;
 
++(NSDictionary*)dictionaryForKey:(NSString*)aKey;
+
 /**
  *  Returns the float associated with the specified key.
  *
